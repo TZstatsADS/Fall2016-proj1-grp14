@@ -2,6 +2,7 @@
 title: "Project 1-Group 14"
 output: html_notebook
 ---
+<<<<<<< HEAD
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
@@ -36,3 +37,7 @@ barplot(mode)
 ```
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
+=======
+In this project, we are interested in what factors will affect the number of children. So based on the household data, we choose varibles like State, family type and employment status, languages spoken in the family, household income. In addtion, we combined several variables like water fees to represent living costs.
+datahsadhasjdkadhasj
+>>>>>>> origin/outputbranch
