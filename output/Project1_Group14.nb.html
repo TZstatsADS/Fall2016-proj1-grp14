@@ -173,9 +173,46 @@ $(document).ready(function () {
 
 <!-- rnb-text-begin -->
 <p>In this project, we are interested in what factors will affect the number of children. So based on the household data, we choose varibles like State, family type and employment status, languages spoken in the family, household income. In addtion, we combined several variables like water fees to represent living costs.</p>
+<p>In the first part, we will take a look at the NOC in different states. # Part One (Sen Zhuang)</p>
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>From the first part, we have seen that “Utah”,“Idaho”,“Alaska”,“North Dakota” and “South Dakota” have higher number of children. “Rhode Island”,“Vermont”,“West Virginia”,“New hampshire” and “District of Columbia” have lower number of children. Hence, in the folloing part, we want to find what factors will affect the NOC. We are interested in Languages spoken in the family, Family Type and Employment Status(FES), Household Income and living costs. We start by studying the relationship between NOC and each individaul factor. Then, focusing on the first five states which have higher number of children and the last five states which have lower number of children, we study our factors further in these states and try to find some paterns.</p>
+<div id="part-two" class="section level1">
+<h1>Part Two</h1>
+<ol style="list-style-type: lower-alpha">
+<li>Languages spoken in family (Weipan Cai)</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Family Type and Employment Status (Yue Wang)</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Household income(Jiwen You)</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<ol start="4" style="list-style-type: lower-alpha">
+<li>Living costs(Tian Sheng)</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJvamVjdCAxLUdyb3VwIDE0IgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKLS0tCkluIHRoaXMgcHJvamVjdCwgd2UgYXJlIGludGVyZXN0ZWQgaW4gd2hhdCBmYWN0b3JzIHdpbGwgYWZmZWN0IHRoZSBudW1iZXIgb2YgY2hpbGRyZW4uIFNvIGJhc2VkIG9uIHRoZSBob3VzZWhvbGQgZGF0YSwgd2UgY2hvb3NlIHZhcmlibGVzIGxpa2UgU3RhdGUsIGZhbWlseSB0eXBlIGFuZCBlbXBsb3ltZW50IHN0YXR1cywgbGFuZ3VhZ2VzIHNwb2tlbiBpbiB0aGUgZmFtaWx5LCBob3VzZWhvbGQgaW5jb21lLiBJbiBhZGR0aW9uLCB3ZSBjb21iaW5lZCBzZXZlcmFsIHZhcmlhYmxlcyBsaWtlIHdhdGVyIGZlZXMgdG8gcmVwcmVzZW50IGxpdmluZyBjb3N0cy4=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJvamVjdCAxLUdyb3VwIDE0IgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKLS0tCkluIHRoaXMgcHJvamVjdCwgd2UgYXJlIGludGVyZXN0ZWQgaW4gd2hhdCBmYWN0b3JzIHdpbGwgYWZmZWN0IHRoZSBudW1iZXIgb2YgY2hpbGRyZW4uIFNvIGJhc2VkIG9uIHRoZSBob3VzZWhvbGQgZGF0YSwgd2UgY2hvb3NlIHZhcmlibGVzIGxpa2UgU3RhdGUsIGZhbWlseSB0eXBlIGFuZCBlbXBsb3ltZW50IHN0YXR1cywgbGFuZ3VhZ2VzIHNwb2tlbiBpbiB0aGUgZmFtaWx5LCBob3VzZWhvbGQgaW5jb21lLiBJbiBhZGR0aW9uLCB3ZSBjb21iaW5lZCBzZXZlcmFsIHZhcmlhYmxlcyBsaWtlIHdhdGVyIGZlZXMgdG8gcmVwcmVzZW50IGxpdmluZyBjb3N0cy4KCkluIHRoZSBmaXJzdCBwYXJ0LCB3ZSB3aWxsIHRha2UgYSBsb29rIGF0IHRoZSBOT0MgaW4gZGlmZmVyZW50IHN0YXRlcy4KIyBQYXJ0IE9uZSAoU2VuIFpodWFuZykKYGBge3J9CgpgYGAKCkZyb20gdGhlIGZpcnN0IHBhcnQsIHdlIGhhdmUgc2VlbiB0aGF0ICJVdGFoIiwiSWRhaG8iLCJBbGFza2EiLCJOb3J0aCBEYWtvdGEiIGFuZCAiU291dGggRGFrb3RhIiBoYXZlIGhpZ2hlciBudW1iZXIgb2YgY2hpbGRyZW4uICJSaG9kZSBJc2xhbmQiLCJWZXJtb250IiwiV2VzdCBWaXJnaW5pYSIsIk5ldyBoYW1wc2hpcmUiIGFuZCAiRGlzdHJpY3Qgb2YgQ29sdW1iaWEiIGhhdmUgbG93ZXIgbnVtYmVyIG9mIGNoaWxkcmVuLiBIZW5jZSwgaW4gdGhlIGZvbGxvaW5nIHBhcnQsIHdlIHdhbnQgdG8gZmluZCB3aGF0IGZhY3RvcnMgd2lsbCBhZmZlY3QgdGhlIE5PQy4gV2UgYXJlIGludGVyZXN0ZWQgaW4gTGFuZ3VhZ2VzIHNwb2tlbiBpbiB0aGUgZmFtaWx5LCBGYW1pbHkgVHlwZSBhbmQgRW1wbG95bWVudCBTdGF0dXMoRkVTKSwgSG91c2Vob2xkIEluY29tZSBhbmQgbGl2aW5nIGNvc3RzLiBXZSBzdGFydCBieSBzdHVkeWluZyB0aGUgcmVsYXRpb25zaGlwIGJldHdlZW4gTk9DIGFuZCBlYWNoIGluZGl2aWRhdWwgZmFjdG9yLiBUaGVuLCBmb2N1c2luZyBvbiB0aGUgZmlyc3QgZml2ZSBzdGF0ZXMgd2hpY2ggaGF2ZSBoaWdoZXIgbnVtYmVyIG9mIGNoaWxkcmVuIGFuZCB0aGUgbGFzdCBmaXZlIHN0YXRlcyB3aGljaCBoYXZlIGxvd2VyIG51bWJlciBvZiBjaGlsZHJlbiwgd2Ugc3R1ZHkgb3VyIGZhY3RvcnMgZnVydGhlciBpbiB0aGVzZSBzdGF0ZXMgYW5kIHRyeSB0byBmaW5kIHNvbWUgcGF0ZXJucy4KCiMgUGFydCBUd28KYSkgTGFuZ3VhZ2VzIHNwb2tlbiBpbiBmYW1pbHkgKFdlaXBhbiBDYWkpCmBgYHtyfQoKYGBgCgpiKSBGYW1pbHkgVHlwZSBhbmQgRW1wbG95bWVudCBTdGF0dXMgKFl1ZSBXYW5nKQpgYGB7cn0KCmBgYAoKYykgSG91c2Vob2xkIGluY29tZShKaXdlbiBZb3UpCmBgYHtyfQoKYGBgCgpkKSBMaXZpbmcgY29zdHMoVGlhbiBTaGVuZykKYGBge3J9CgpgYGAKCg==</div>
 
 
 

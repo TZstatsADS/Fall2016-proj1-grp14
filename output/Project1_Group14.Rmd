@@ -3,3 +3,33 @@ title: "Project 1-Group 14"
 output: html_notebook
 ---
 In this project, we are interested in what factors will affect the number of children. So based on the household data, we choose varibles like State, family type and employment status, languages spoken in the family, household income. In addtion, we combined several variables like water fees to represent living costs.
+
+In the first part, we will take a look at the NOC in different states.
+# Part One (Sen Zhuang)
+```{r}
+
+```
+
+From the first part, we have seen that "Utah","Idaho","Alaska","North Dakota" and "South Dakota" have higher number of children. "Rhode Island","Vermont","West Virginia","New hampshire" and "District of Columbia" have lower number of children. Hence, in the folloing part, we want to find what factors will affect the NOC. We are interested in Languages spoken in the family, Family Type and Employment Status(FES), Household Income and living costs. We start by studying the relationship between NOC and each individaul factor. Then, focusing on the first five states which have higher number of children and the last five states which have lower number of children, we study our factors further in these states and try to find some paterns.
+
+# Part Two
+a) Languages spoken in family (Weipan Cai)
+```{r}
+
+```
+
+b) Family Type and Employment Status (Yue Wang)
+```{r}
+
+```
+
+c) Household income(Jiwen You)
+```{r}
+
+```
+
+d) Living costs(Tian Sheng)
+```{r}
+
+```
+
