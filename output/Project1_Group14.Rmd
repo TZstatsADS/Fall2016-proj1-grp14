@@ -1,0 +1,5 @@
+---
+title: "Project 1-Group 14"
+output: html_notebook
+---
+In this project, we are interested in what factors will affect the number of children. So based on the household data, we choose varibles like State, family type and employment status, languages spoken in the family, household income. In addtion, we combined several variables like water fees to represent living costs.
