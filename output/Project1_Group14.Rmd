@@ -17,10 +17,12 @@ library(plyr)
 library(googleVis)
 library(dplyr)
 library(plotly)
+library(choroplethr)
+library(choroplethrMaps)
 ```
 
 #Summary
-In this project, we are interested in what factors will affect the number of children. So based on the household data, we choose varibles like State, family type and employment status, languages spoken in the family, household income. In addtion, we combined several variables like water fees to represent living costs.
+In this project, we have centered our exploratory data analysis around a segment of our population, families with children. We'll be investigating interesting topics such as factors that influence the number of children, states with abnormally high or low number of children and much more. Given our American community surveys on individual households, we've choosen numeric and categorical variables like Residing State, family type and employment status, languages spoken in the family and household income. Additionally, we have also created artifical new variables that extract and combind valuable information.
 
 #Inital data overview
 ```{r}
@@ -43,14 +45,52 @@ str(df)
 ```
 Our dataset consists of 19 variables and total of 308611 households.
 
-In the first part, we will take a look at the NOC in different states.
+#Children across U.S. states
+In the first part, we will take a look at the average number of children in households across the country.
 
-# Part One (Sen Zhuang)
+##Map of number of children in household (here dark blue means high birth rate and white means low)
 ```{r}
+noc_st <- df[, c('NOC', 'name')]
+avg_noc_st <- aggregate(NOC~name, noc_st, FUN = mean)
+avg_noc_st$name = tolower(avg_noc_st$name)
+avg_noc_st$region <- avg_noc_st$name
+avg_noc_st$value <- avg_noc_st$NOC
+avg_noc_st <- avg_noc_st[, c(3, 4)]
 
+
+# Ranked chart
+sort.avg_noc_st <- avg_noc_st[order(-avg_noc_st$value),]
+sort.avg_noc_st$rank <- 1:51
+
+
+map_mean_noc <- state_choropleth(avg_noc_st, 
+                                 title = 'Average number of children by state, 2014',
+                                 legend = 'Number of own children',
+                                 num_colors = 7)
+
+map_mean_noc
 ```
 
-From the first part, we have seen that Utah, Idaho, Alaska, North Dakota and South Dakota have higher number of children. Rhode Island, Vermont, West Virginia, New hampshire and District of Columbia have lower number of children. Hence, in the folloing part, we want to find what factors will affect the NOC. We are interested in Languages spoken in the family, Family Type and Employment Status(FES), Household Income and living costs. We start by studying the relationship between NOC and each individaul factor. Then, focusing on the first five states which have higher number of children and the last five states which have lower number of children, we study our factors further in these states and try to find some paterns.
+As the plot show above, discrepences between states are obivious and there are clear clusters of states where average number of own children is praticularly high or low. For instance, new england states are themself a clusters as the number of children in those states is low. While looking at the mid-west, there is darker cluster around WY where NOW is as high as 1.9 to 2.4.
+
+##Top 5 states with highest and lowest NOC
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+print(sort.avg_noc_st)
+```
+
+<<<<<<< HEAD
+State or district | Avg Number of children | Rank
+----------------- | ---------------------  | ----
+Utah              | 2.4                    | 1
+Idaho             | 2.2                    | 2
+Alaska            | 2.1                    | 3
+North Dakota      | 2.0                    | 4
+South Dakota      | 2.0                    | 5
+Rhode Island      | 1.75                   | 47
+Vermont           | 1.76                   | 48
+West Virginia     | 1.76                   | 49
+New Hampshire     | 1.72                   | 50
+D.C.              | 1.66                   | 51
 
 # Part Two
 a) Languages spoken in family (Weipan Cai)
