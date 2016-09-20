@@ -45,14 +45,6 @@ Our dataset consists of 19 variables and total of 308611 households.
 
 In the first part, we will take a look at the NOC in different states.
 
-```{r,echo=FALSE}
-library(dplyr)
-library(sqldf)
-library(data.table)
-library(ggplot2)
-library(plotly)
-```
-
 # Part One (Sen Zhuang)
 ```{r}
 
@@ -91,6 +83,7 @@ codeoffes <- fread(fescode)
 ```
 
 The bubble chart below shows the mean NOC under different family type and employment status. From it, we can find that Married-couple, only husband in Labor Force that has a biggest mean number of childern.
+
 ```{r}
 # bubble chart
 d <- diamonds[sample(nrow(diamonds),1000),]
@@ -143,12 +136,6 @@ Sankey1 <- gvisSankey(SKdata1, from="From", to="To",weight="Weight",options=list
 plot(Sankey1)
 ```
 
-<<<<<<< HEAD
-c) Household Income(Jiwen You)
-
-In order to understand the relationship between number of children in the household with respect to the household income, firstly we plotted the histogram of the variable. Except for some extremely wealthy families, most of the households obtain annual income from 0 to $25,000. 
-
-=======
 Based on the first part, I try to compare the Family Type and Employment Status in states which have more children and states which have less children. 
 ```{r}
 # Then we want to dig out more about the FES in different status.
@@ -170,8 +157,11 @@ ggplot(statelow, aes(x=name,y=percentage,fill=factor(FamilyTypeEmploymentStatus)
 ```
 Compare these two graphs, we can find that States, which have higher number of children, "Both in Labor Force" and "Only husband in Labor force" have larger percentage. However, states, which have lower number of children, "Both in Labor Force" and "Female in Labor Force" have larger percentage.
 Hence, we can conclude that Family Type and Employment Status will affect the number of children. The comparison in different states confirm my finding that "Only Husband in Labor Force" tend to have more children. "Female in Labor Force" tend to have less children. This finding is consistent with our assumption. Because we need money to raise babies and females take more responsibilities for raising children. 
-c) Household income(Jiwen You)
->>>>>>> origin/master
+
+c) Household Income(Jiwen You)
+
+In order to understand the relationship between number of children in the household with respect to the household income, firstly we plotted the histogram of the variable. Except for some extremely wealthy families, most of the households obtain annual income from 0 to $25,000. 
+
 ```{r}
 hus <- na.omit(select(df,NOC,HINCP,name))
 hdata <- data.frame(child=hus$NOC,income=hus$HINCP)
@@ -201,7 +191,7 @@ ggplot(c,aes(x=income,y=avg_child))+
   labs(x="Household Income",y="Average Number of Children")
 ```
 
-In order to tested our hypothesis, we used the household income from the ten states we selected previously, five with large NOC and five with small NOC. For simpleness an effectiveness of displaying the graph, we created class intervals and put our data points into their respective bins. The bin length is $1,000. And we calculated the average number of children within each bins. Different colors, grey and red, are used to distinguish the source of these household income, and the size reflects the magnitude of average number of children. Fixing the number of children, the household income in the states with less children seems to be a little be greater than that in the other five states. 
+To tested our hypothesis, we used the household income from the ten states we selected previously, five with large NOC and five with small NOC. For simpleness an effectiveness of displaying the graph, we created class intervals and put our data points into their respective bins. The bin length is $1,000. And we calculated the average number of children within each bins. Different colors, grey and red, are used to distinguish the source of these household income, and the size reflects the magnitude of average number of children. Fixing the number of children, the household income in the states with less children seems to be a little be greater than that in the other five states. 
 
 ```{r,warning=FALSE}
 # Select five states with large NOC and five states with small NOC to test our hypothesis
@@ -220,7 +210,7 @@ var.test(hdata_st1$HINCP,hdata_st2$HINCP)
 t.test(hdata_st1$HINCP,hdata_st2$HINCP)
 ```
 
-Hence, we did the Welch???s modified two-sample t test to test the mean. The null hypothesis is that two groups of states have same average household income. We reject the null hypothesis under 0.05 significance level. Combined with our graphical plot, we may infer that the household income and number of children are negatively correlated, even though the relationship is not that strong. 
+Hence, we did the Welch's modified two-sample t test to test the mean. The null hypothesis is that two groups of states have same average household income. We reject the null hypothesis under 0.05 significance level. Combined with our graphical plot, we may infer that the household income and number of children are negatively correlated, even though the relationship is not that strong. 
 
 d) Living costs(Tian Sheng)
 ```{r}
