@@ -1,8 +1,43 @@
 ---
-title: "Project 1-Group 14"
+title: "EDA of children in the United States"
+author: "WeiPan Cai, Yue Wang, Tian Sheng, Jiwen You, Sen Zhuang"
 output: html_notebook
 ---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that we end up using
+# in your analysis in this chunk
+
+library(ggplot2)
+library(sqldf)
+library(maps)
+library(plyr)
+
+```
+
+#Summary
 In this project, we are interested in what factors will affect the number of children. So based on the household data, we choose varibles like State, family type and employment status, languages spoken in the family, household income. In addtion, we combined several variables like water fees to represent living costs.
+
+#Inital data overview
+```{r}
+# Load RData file
+load(file.choose())
+
+# Change variables to their correct class
+df$NOC <- as.factor(df$NOC) # Convert number of own children to factor
+df$NP <- as.factor(df$NP)
+df$BDSP <- as.factor(df$BDSP)
+df$RMSP <- as.factor(df$RMSP)
+df$FES <- as.factor(df$FES)
+df$HHL <- as.factor(df$HHL)
+df$WKEXREL <- as.factor(df$WKEXREL)
+df$WORKSTAT <- as.factor(df$WORKSTAT)
+
+# print out summary stats
+str(df)
+
+```
+Our dataset consists of 19 variables and total of 308611 households.
 
 In the first part, we will take a look at the NOC in different states.
 # Part One (Sen Zhuang)
