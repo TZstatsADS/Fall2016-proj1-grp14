@@ -1,0 +1,58 @@
+#load data
+load("C:/Users/wc254/Downloads/data.RData")
+attach(df)
+names(df)
+#subset NOC and HHL from the data
+raw=split(NOC,HHL)
+#calculation mean and mode of NOC which each HHL
+mean=rep(0,5)
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+mode=rep(0,5)
+
+for(i in 1:5){
+  mean[i]=mean(raw[[i]])
+  mode[i]=Mode(raw[[i]])
+}
+#plot the result
+barplot(mean)
+names(mode)=c("1","2","3","4","5")
+names(mean)=c("1","2","3","4","5")
+barplot(mode)
+#find relationship between HHL and state
+raw2=split(HHL,abbr)
+
+rate=rep(0,52)
+for(i in 1:52){
+  rate[i]=table(raw2[[i]])[5]/length(raw2[[i]])
+}
+plot(rate)
+names(rate)=names(table(abbr))
+a=cbind(names(rate),as.numeric(rate))
+barplot(rate)
+#find relationship between HHL and NOC with the data from top 5 and last 5 state
+names(df)
+df=as.matrix(df)
+ncol(df)
+nrow(df)
+attach(df)
+dft1=df[which(df$abbr=='UT'),]
+dft2=df[which(df$name=='Idaho'),]
+dft3=df[which(df$name=='Alaska'),]
+dft4=df[which(df$name=='North Dakota'),]
+dft5=df[which(df$name=='South Dakota'),]
+dft=rbind(dft1,dft2,dft3,dft4,dft5)
+dfl1=df[which(df$name=='District of Columbia'),]
+dfl2=df[which(df$name=='New Hampshire'),]
+dfl3=df[which(df$name=='West Virginia'),]
+dfl4=df[which(df$name=='Vermont'),]
+dfl5=df[which(df$name=='Rhode Island'),]
+dfl=rbind(dfl1,dfl2,dfl3,dfl4,dfl5)
+dfth=cbind(dft$NOC,dft$HHL)
+dflh=cbind(dfl$NOC,dfl$HHL)
+dfth.t=table(dfth[,2],dfth[,1])
+barplot(dfth.t[1:5,1:5],main="Top House Hold Language",xlab="house hold language",legend=rownames(dfth.t),col=c(1:5),beside=TRUE)
+dflh.t=table(dflh[,2],dflh[,1])
+barplot(dflh.t[1:5,1:5],main="Low House Hold Language",xlab="house hold language",legend=rownames(dflh.t),col=c(1:5),beside=TRUE)
