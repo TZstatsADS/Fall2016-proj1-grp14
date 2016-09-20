@@ -9,7 +9,7 @@ df <- sqldf('SELECT mydata.NOC, mydata.NP, mydata.BDSP,
                 mydata.RMSP, mydata.RNTP, mydata.VALP, mydata.FES,
             mydata.FINCP, mydata.GRPIP, mydata.HHL, mydata.HINCP,
             mydata.TAXP, mydata.WKEXREL, mydata.WORKSTAT, mydata.WATP,
-            mydata.GASP, mydata.FULP, st.name, st.abbr
+            mydata.GASP, mydata.FULP, mydata.ELEP, st.name, st.abbr
             FROM mydata, st
             WHERE NOC >= 1
             AND mydata.ST = st.code')
