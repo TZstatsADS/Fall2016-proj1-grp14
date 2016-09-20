@@ -40,12 +40,21 @@ str(df)
 Our dataset consists of 19 variables and total of 308611 households.
 
 In the first part, we will take a look at the NOC in different states.
+
+```{r,echo=FALSE}
+library(dplyr)
+library(sqldf)
+library(data.table)
+library(ggplot2)
+library(plotly)
+```
+
 # Part One (Sen Zhuang)
 ```{r}
 
 ```
 
-From the first part, we have seen that "Utah","Idaho","Alaska","North Dakota" and "South Dakota" have higher number of children. "Rhode Island","Vermont","West Virginia","New hampshire" and "District of Columbia" have lower number of children. Hence, in the folloing part, we want to find what factors will affect the NOC. We are interested in Languages spoken in the family, Family Type and Employment Status(FES), Household Income and living costs. We start by studying the relationship between NOC and each individaul factor. Then, focusing on the first five states which have higher number of children and the last five states which have lower number of children, we study our factors further in these states and try to find some paterns.
+From the first part, we have seen that Utah, Idaho, Alaska, North Dakota and South Dakota have higher number of children. Rhode Island, Vermont, West Virginia, New hampshire and District of Columbia have lower number of children. Hence, in the folloing part, we want to find what factors will affect the NOC. We are interested in Languages spoken in the family, Family Type and Employment Status(FES), Household Income and living costs. We start by studying the relationship between NOC and each individaul factor. Then, focusing on the first five states which have higher number of children and the last five states which have lower number of children, we study our factors further in these states and try to find some paterns.
 
 # Part Two
 a) Languages spoken in family (Weipan Cai)
@@ -58,10 +67,59 @@ b) Family Type and Employment Status (Yue Wang)
 
 ```
 
-c) Household income(Jiwen You)
-```{r}
+c) Household Income(Jiwen You)
 
+In order to understand the relationship between number of children in the household with respect to the household income, firstly we plotted the histogram of the variable. Except for some extremely wealthy families, most of the households obtain annual income from 0 to $25,000. 
+
+```{r}
+hus <- na.omit(select(df,NOC,HINCP,name))
+hdata <- data.frame(child=hus$NOC,income=hus$HINCP)
+qplot(hdata$income,geom = "histogram",bins = 100,xlab = "Household Income", 
+      main = "Histogram for Household Income",col=I("red"),alpha=I(0.3))
 ```
+
+Then we generated the box plots for different NOC levels. Those wealthy households are detected as outliers in the box plot. It is interesting to see that the extremely wealthy families simply tend to have one or two children, rather than raising as many children as they can afford. In addition, it seems that the average level of household income decreases as the number of children increases. The output is much clearer when we remove those extreme values.
+
+```{r,warning=FALSE}
+plot_ly(hdata, y = income, color = factor(child), type = "box")  %>% 
+  layout(title = "Boxplots for Household Income with different NOC")
+```
+
+Further more, we tried to calculate the average number of children for different household income to further verify our hypothesis. The following graph demonstrates the lowess smoothing line of the data table. There is a significant decreasing trend when the household income is greater than $50,000, while the tendency is not that clear in the remaining part. 
+
+```{r}
+# Calculate the average NOC for different income level
+c <- hdata %>% group_by(income) %>% dplyr::summarise(avg_child= mean(child), 
+                                                      min_child = min(child), 
+                                                      max_child = max(child),
+                                                      total = n())
+# Smooth the average number of children for different household income
+ggplot(c,aes(x=income,y=avg_child))+
+  geom_smooth(aes(colour = avg_child, fill = avg_child))+
+  ggtitle("Average Number of Children for Different Household Income")+
+  labs(x="Household Income",y="Average Number of Children")
+```
+
+In order to tested our hypothesis, we used the household income from the ten states we selected previously, five with large NOC and five with small NOC. For simpleness an effectiveness of displaying the graph, we created class intervals and put our data points into their respective bins. The bin length is $1,000. And we calculated the average number of children within each bins. Different colors, grey and red, are used to distinguish the source of these household income, and the size reflects the magnitude of average number of children. Fixing the number of children, the household income in the states with less children seems to be a little be greater than that in the other five states. 
+
+```{r,warning=FALSE}
+# Select five states with large NOC and five states with small NOC to test our hypothesis
+hdata_st1 <- filter(hus,name %in% c("Utah","Idaho","Alaska","North Dakota","South Dakota")) %>% mutate(code = "States with More Children")
+hdata_st2 <- filter(hus,name %in% c("Rhode Island","Vermont","West Virginia","New Hampshire  ","District of Columbia")) %>% mutate(code = "States with Less Children")
+hdata_st <- rbind(hdata_st2,hdata_st1) %>% mutate(HINCP=round(HINCP,-3)) %>%
+  group_by(HINCP,code) %>% summarise(avg_child = mean(NOC))
+plot_ly(data = hdata_st, x = HINCP, y = avg_child, mode = "markers",
+        color = code, colors = "Set1", size = avg_child) %>% layout(title = "Household Income Comparision among States")
+```
+
+Except for the graphical analysis, we applied statistical test to support our result. Firstly we conducted F test to compare two variance of the household income from two group of states. The small P-value indicates the inequality of the variance. 
+
+```{r}
+var.test(hdata_st1$HINCP,hdata_st2$HINCP)
+t.test(hdata_st1$HINCP,hdata_st2$HINCP)
+```
+
+Hence, we did the Welch???s modified two-sample t test to test the mean. The null hypothesis is that two groups of states have same average household income. We reject the null hypothesis under 0.05 significance level. Combined with our graphical plot, we may infer that the household income and number of children are negatively correlated, even though the relationship is not that strong. 
 
 d) Living costs(Tian Sheng)
 ```{r}
