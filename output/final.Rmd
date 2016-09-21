@@ -166,7 +166,9 @@ codeoffes <- fread(fescode)
 ```{r echo = FALSE}
 # bubble chart
 d <- diamonds[sample(nrow(diamonds),1000),]
-plot_ly(d,x=result$FES, y=result$NOC, size=size$n, mode="markers") %>%
+result$FES <- as.factor(result$FES)
+levels(result$FES) <- c('Both LF', 'HLF', 'WLF', 'N', 'MaleLF', 'MaleNT', 'FemaleLF', 'FemaleNT')
+plot_ly(d,x= result$FES, y=result$NOC, size=size$n, mode="markers") %>%
   layout(title = " ", xaxis = list(title = "Employment Status and Family Type"), yaxis = list(title = "Number of kids in household"))
 ```
 
