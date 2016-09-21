@@ -4,26 +4,19 @@
 Term: Fall 2016
 
 + Team 14
-+ Project title: It's all about the kids! (TBD)
++ Project title: It's all about the kids!
 + Team members
-	+ Weipan Cai
-	+ Yue Wang
 	+ Tian Sheng
 	+ Jiwen You
 	+ Sen Zhuang
-+ Project summary: The team is investigating American families structure and especially interested the important role that children play in household. We will look into how living of children in different states vary and what common variables families with high number of children share. (To be continued........)
++ Project summary: In this project, we have centered our exploratory data analysis around a segment of our population, families with children. We'll be investigating interesting topics such as factors that influence the number of children, states with abnormally high or low number of children and much more. Given our American community surveys on individual households, we've choosen numeric and categorical variables like Residing State, family type and employment status, languages spoken in the family and household income. Additionally, we have also created artifical new variables that extract and combind valuable information.
 
-**Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement.
+**Contribution statement**:
++ Sen Zhuang:
+	+ Extracted raw data and created RData file for project use
+	+ Completed summary, initial data overview, states sections, income per person section and reflection
+	+ Edited, consolidated and cleaned statements and scripts
+	+ Present project work
++ Tian Sheng:
++ Jiwen You:
 
-Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
-
-```
-proj/
-├── lib/
-├── data/
-├── doc/
-├── figs/
-└── output/
-```
-
-Please see each subfolder for a README file.
