@@ -306,8 +306,7 @@ c <- hdata %>% group_by(income) %>% dplyr::summarise(avg_child= mean(child),
                                                       total = n())
 # Smooth the average number of children for different household income
 plot_ly(c,x=income,y=fitted(loess(avg_child ~ income))) %>%
-  ggtitle("Average Number of Children for Different Household Income")+
-  labs(x="Household Income")
+  layout (title = "Average Number of Children for Different Household Income")
 ```
 
 To tested our hypothesis, we used the household income from the ten states we selected previously, five with large NOC and five with small NOC. For simpleness an effectiveness of displaying the graph, we created class intervals and put our data points into their respective bins. The bin length is $1,000. And we calculated the average number of children within each bins. Different colors, grey and red, are used to distinguish the source of these household income, and the size reflects the magnitude of average number of children. Fixing the number of children, the household income in the states with less children seems to be a little be greater than that in the other five states. 
