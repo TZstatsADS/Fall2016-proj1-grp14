@@ -1,5 +1,17 @@
 require(sqldf)
-
+# NP, number of people records following this housing record
+# BDSP, number of bedrooms
+# RMSP, number of rooms
+# RNTP, monthly rent
+# VALP, property value
+# FES, family type and employment status
+# FINCP, family income
+# GRPIP, gross rent as percentage of household income past 12 months
+# HHL, Household language
+# HINCP, Household income
+# TAXP, Property tax
+# WKEXREL, Work experience of householder and spouse
+# WORKSTAT, Work status of householder or spouse in family households
 # Choose ss14husa.csv and ss14husb.csv
 mydata_a <- read.csv(file.choose(), header = T, sep = ",")
 mydata_b <- read.csv(file.choose(), header = T, sep = ',')
