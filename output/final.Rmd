@@ -1,0 +1,421 @@
+---
+title: "It's all about the kids!"
+author: "By Tian Sheng, Jiwen You, Sen Zhuang"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that we end up using
+# in your analysis in this chunk
+library(data.table)
+library(ggplot2)
+library(sqldf)
+library(maps)
+library(plyr)
+library(googleVis)
+library(dplyr)
+library(plotly)
+library(choroplethr)
+library(choroplethrMaps)
+```
+
+#Summary
+In this project, we have centered our exploratory data analysis around a segment of our population, households with children. We'll be investigating interesting topics such as factors that influence children' presence in families, states with abnormally high or low number of children and much more. Given our American community surveys on individual households, we've choosen numeric and categorical variables like Residing State, family type and employment status, languages spoken in the family and household income. Additionally, we have also created artifical new variables that extract and combind valuable information.
+
+#Inital data overview
+```{r echo = FALSE}
+# Load RData file
+load("/Users/senzhuang/Documents/GitHub/Fall2016-proj1-grp14/data/data.RData")
+
+# Change variables to their correct class
+# df$NOC <- as.factor(df$NOC) # Convert number of own children to factor
+# df$NP <- as.factor(df$NP)
+# df$BDSP <- as.factor(df$BDSP)
+# df$RMSP <- as.factor(df$RMSP)
+# df$FES <- as.factor(df$FES)
+# df$HHL <- as.factor(df$HHL)
+# df$WKEXREL <- as.factor(df$WKEXREL)
+# df$WORKSTAT <- as.factor(df$WORKSTAT)
+
+# print out summary stats
+str(df)
+
+```
+Our dataset consists of 19 variables and total of 308611 households.
+
+#Children across U.S. states
+In the first part, we will take a look at the average number of children in households across the country.
+
+##Map of number of children in household (here dark blue means high birth rate and white means low)
+```{r echo = FALSE, message=FALSE}
+noc_st <- df[, c('NOC', 'name')]
+avg_noc_st <- aggregate(NOC~name, noc_st, FUN = mean)
+avg_noc_st$name = tolower(avg_noc_st$name)
+avg_noc_st$region <- avg_noc_st$name
+avg_noc_st$value <- avg_noc_st$NOC
+avg_noc_st <- avg_noc_st[, c(3, 4)]
+
+
+#  Ranked chart
+#  sort.avg_noc_st <- avg_noc_st[order(-avg_noc_st$value),]
+#  sort.avg_noc_st$rank <- 1:51
+# 
+# 
+#  map_mean_noc <- state_choropleth(avg_noc_st,
+#                                   title = 'Average number of children by state, 2014',
+#                                   legend = 'Number of own children',
+#                                   num_colors = 7)
+# 
+# map_mean_noc
+
+```
+
+
+```{r echo = FALSE}
+#Mapping on state map
+#sort.avg_noc_st$region <- avg_noc_st$name
+states <- map_data('state')
+mapping1 <- merge(states, avg_noc_st, by = 'region', all = T)
+
+data(state)
+states <- data.frame(state.abb, state.name, state.area, state.center,
+                     state.division, state.region, state.x77)
+
+data(us.cities)
+us.cities <- subset(us.cities, pop > 500000)
+
+row.names(states) <- NULL
+states <- states[, !(names(states) %in% c("Area"))]
+
+
+# clarify context
+# e.g. Life.Exp is the median state life expectancy and not the artist's
+states <- plyr::rename(states, c("x"          = "state.x", 
+                           "y"          = "state.y", 
+                           "Population" = "state.population",
+                           "Income"     = "state.income",
+                           "Illiteracy" = "state.illiteracy",
+                           "Life.Exp"   = "state.life.exp",
+                           "Murder"     = "state.murder",
+                           "HS.Grad"    = "state.hs.grad",
+                           "Frost"      = "state.frost"))
+
+
+ggplot(data=mapping1, aes(x = long, y  = lat, group = group)) +
+        geom_polygon(aes(fill = cut_number(mapping1$value,5))) +
+        geom_path(colour = 'gray', linejoin = 2) +
+        coord_map() +
+        geom_point(data = states, aes(x     = state.x, 
+                                y     = state.y, 
+                                size  = state.population, 
+                                group = NULL)) +
+        scale_fill_brewer('Avg number of children', palette  = 'PuRd') +
+  theme_bw()
+
+
+```
+As the plot show above, discrepences between states are obivious and there are clear clusters of states where average number of own children is praticularly high or low. For instance, new england states are themself a clusters as the number of children in those states is low. While looking at the mid-west, there is darker cluster around WY where NOW is as high as 1.9 to 2.4.
+
+
+##Top 5 states with highest and lowest NOC
+```{r echo = FALSE, eval = FALSE}
+print(sort.avg_noc_st)
+```
+
+State or district | Avg Number of children | Rank
+----------------- | ---------------------  | ----
+Utah              | 2.4                    | 1
+Idaho             | 2.2                    | 2
+Alaska            | 2.1                    | 3
+North Dakota      | 2.0                    | 4
+South Dakota      | 2.0                    | 5
+............      | ....                   | ..
+Rhode Island      | 1.75                   | 47
+Vermont           | 1.76                   | 48
+West Virginia     | 1.76                   | 49
+New Hampshire     | 1.72                   | 50
+D.C.              | 1.66                   | 51
+
+#Univariate Analysis Section
+
+##Family Type and Employment Status
+```{r echo = FALSE, warning = FALSE}
+# study the relationship between FES and NOC
+working <- select(df, NOC, FES)
+work1 <- working %>%
+          na.omit()
+size <- count(work1, FES)
+# compare mean of different FES
+result <- aggregate(NOC~FES, data = work1, FUN=mean)
+# FamilyTypeEmploymentStatus code
+fescode <- "FES,FamilyTypeEmploymentStatus
+1, Both in Labor Force
+2, Only Husband in Labor Force
+3, Only Wife in Labor Force
+4, Neither in Labor Force
+5, Male in Labor Force
+6, Male not in Labor Force
+7, Female in Labor Force
+8, Female not in Labor Force
+"
+codeoffes <- fread(fescode)
+```
+
+```{r echo = FALSE}
+# bubble chart
+d <- diamonds[sample(nrow(diamonds),1000),]
+result$FES <- as.factor(result$FES)
+levels(result$FES) <- c('Both LF', 'HLF', 'WLF', 'N', 'MaleLF', 'MaleNT', 'FemaleLF', 'FemaleNT')
+plot_ly(d,x= result$FES, y=result$NOC, size=size$n, mode="markers") %>%
+  layout(title = " ", xaxis = list(title = "Employment Status and Family Type"), yaxis = list(title = "Number of kids in household"))
+```
+
+The bubble chart above shows the mean NOC under different family type and employment status. From it, we can find that Married-couple, only husband in Labor Force that has a biggest mean number of childern.
+
+```{r echo = FALSE}
+work1 = tbl_df(work1)
+# work2 is the table group_by(NOC,FES)
+work2 <- work1 %>% group_by(NOC,FES) %>% summarise(n=n()) %>% mutate(percentage = n/sum(n) * 100)
+work2 <- mutate(work2, percentage = round(percentage,2))
+work2 <- sqldf('SELECT work2.NOC, work2.FES,work2.n,work2.percentage, codeoffes.FamilyTypeEmploymentStatus from work2,codeoffes where work2.FES=codeoffes.FES')
+family_employment_status = as.factor(work2$FamilyTypeEmploymentStatus)
+# by percentage
+ggplot(work2,aes(x=NOC,y=percentage,fill=family_employment_status))+xlab("Number of children")+ylab("Percentage")+geom_bar(stat="identity")+ggtitle("Composite of family employment status across NOC")
+# # by number
+# ggplot(work2,aes(x=NOC,y=n,fill=factor(FamilyTypeEmploymentStatus)))+xlab("Number of children")+ylab("Total Number")+geom_bar(stat="identity")+ggtitle("Total Number of FES under different NOC")
+# # work3 is the table group_by(FES,NOC)
+# work3 <- work1 %>% group_by(FES,NOC) %>% summarise(n=n()) %>% mutate(percentage = n/sum(n) * 100)
+# work3 <- mutate(work3,percentage = round(percentage,2))
+# work3 <- sqldf('SELECT work3.FES, work3.NOC,work3.n,work3.percentage, codeoffes.FamilyTypeEmploymentStatus from work3,codeoffes where work3.FES=codeoffes.FES')
+# # by percentage 
+# ggplot(work3,aes(x=FES,y=percentage,fill=factor(NOC)))+xlab("Family Type and Employment Status ")+ylab("Percentage")+geom_bar(stat="identity")+ggtitle("Percentage of NOC under different FES") + theme(legend.position="bottom")
+# # by number
+# ggplot(work3,aes(x=FES,y=n,fill=factor(NOC)))+xlab("Family Type and Employment Status ")+ylab("Total number")+geom_bar(stat="identity")+ggtitle("Total number of NOC under different FES") + theme(legend.position="bottom")
+```
+In the following part, I use ggplot to show the percentage and total NOC under different family type and employment status. From these plots, we can find that the family type that "Only Husband in Labor Force" tend to have more number of children. The family type that "Female in Labor Force" tend to have less number of children.
+
+```{r echo = FALSE, message = FALSE}
+# sankey plot
+SKdata <- data.frame(From=c(rep("Both in Labor Force",12),rep("Only Husband in Labor Force",12),rep("Only Wife in Labor Force",12),rep("Neither in Labor Force",12),
+                            rep("Male in Labor Force",12),rep("Male not in Labor Force",12),rep("Female in Labor Force",12),rep("Female not in Labor Force",12)),
+                     To=c(rep(c("1","2","3","4","5","6","7","8","9","10","11","12"),8)),
+                     Weight=c(40.92,41.22,13.72,3.17,0.68,0.18,0.07,0.03,0.01,0,0,0,31.47,38.59,19.52,7.11,1.99,0.77,0.29, 0.15,0.07,0.03,0.01,0,47.26,35.25,12.27,3.57,1.05,0.33,
+                              0.18,0.06,0.02,0.01,0,0,49.46,30.02,12.32,5.53,1.34,0.72,0.41,0.08,0.08,0.03,0.03,0,55.22,30.64,10.24,2.93,0.74,0.16,0.06,0.01,0,0,0,0,62.77,24.31,8.81,
+                              2.96,0.76,0.25,0.13,0,0,0,0,0,51.55,31.85,11.90,3.45,0.89,0.26,0.07,0.02,0.01,0,0,0,43.74,31.90,15.28,6.07,1.97,0.73,0.19,0.09,0.02,0.02,0,0.01))
+Sankey <- gvisSankey(SKdata, from="From", to="To",weight="Weight",options=list(sankey="{link: {color: { fill: '#d799ae' } },
+                            node: { color: { fill: '#a61d4c' },
+                            label: { color: '#871b47' } }}"))
+plot(Sankey)
+
+# sankey plot about no more than four children and married couple family type
+SKdata1 <-data.frame(From=c(rep("Both in Labor Force",4),rep("Only Husband in Labor Force",4),rep("Only Wife in Labor Force",4),rep("Neither in Labor Force",4)),
+                     To=c(rep(c("1","2","3","4"),4)),
+                     Weight=c(40.92,41.22,13.72,3.17,31.47,38.59,19.52,7.11,47.26,35.25,12.27,3.57,49.46,30.02,12.32,5.53))
+Sankey1 <- gvisSankey(SKdata1, from="From", to="To",weight="Weight",options=list(sankey="{link: {color: { fill: '#d799ae' } },
+                            node: { color: { fill: '#a61d4c' },
+                            label: { color: '#871b47' } }}"))
+plot(Sankey1)
+```
+Based on the first part, I try to compare the Family Type and Employment Status in states which have more children and states which have less children. 
+
+```{r echo = FALSE, message = FALSE}
+# Then we want to dig out more about the FES in different status.
+high <- sqldf('SELECT df.NOC, df.FES, df.name from df where name in ("Utah","Idaho","Alaska","North Dakota","South Dakota")')
+low <- sqldf('SELECT NOC, FES, name from df where name in ("District of Columbia","New Hampshire","West Virginia","Vermont","Rhode Island")')
+# Then we want to study the relationship between state and FES
+# study the fist five rank high states
+high1 <- select(high, FES,name) %>% na.omit()
+statehigh <- high1 %>% group_by(name,FES) %>% summarise(n=n()) %>% mutate(percentage = n/sum(n) * 100)
+statehigh <- mutate(statehigh,percentage = round(percentage,2))
+statehigh <- sqldf('SELECT statehigh.name, statehigh.FES,statehigh.n,statehigh.percentage, codeoffes.FamilyTypeEmploymentStatus from statehigh,codeoffes where statehigh.FES=codeoffes.FES')
+ggplot(statehigh,aes(x=name,y=percentage,fill=factor(FamilyTypeEmploymentStatus)))+xlab("The first five states with highest NOC")+ylab("Percentage")+geom_bar(stat="identity")+ggtitle("Percentage of FES in states with higher NOC") + theme(legend.position="bottom")
+# study the last five states with lower NOC
+low1 <- select(low, FES, name) %>% na.omit()
+statelow <- low1 %>% group_by(name,FES) %>% summarise(n=n()) %>% mutate(percentage = n/sum(n)*100)
+statelow <- mutate(statelow, percentage = round(percentage,2))
+statelow <- sqldf('SELECT statelow.name,statelow.FES,statelow.n,statelow.percentage, codeoffes.FamilyTypeEmploymentStatus from statelow, codeoffes where statelow.FES= codeoffes.FES')
+ggplot(statelow, aes(x=name,y=percentage,fill=factor(FamilyTypeEmploymentStatus)))+xlab("The last five states with lowest NOC")+ylab("Percentage")+geom_bar(stat="identity")+ggtitle("Percentage of FES in states with lower NOC") + theme(legend.position = "bottom")
+```
+Compare these two graphs, we can find that States, which have higher number of children, "Both in Labor Force" and "Only husband in Labor force" have larger percentage. However, states, which have lower number of children, "Both in Labor Force" and "Female in Labor Force" have larger percentage.
+Hence, we can conclude that Family Type and Employment Status will affect the number of children. The comparison in different states confirm my finding that "Only Husband in Labor Force" tend to have more children. "Female in Labor Force" tend to have less children. This finding is consistent with our assumption. Because we need money to raise babies and females take more responsibilities for raising children.
+
+##Income per person
+A artifical variable was created as income per person. (Household income divided by number of persons in household) We want to explore if income per person is a factor that guides the decision of births. Here we will first investigate the distribution of income per person.
+```{r}
+md <- df
+md$IPP <- md$HINCP / md$NP
+md$NOC <- as.factor(md$NOC)
+levels(md$NOC) = c('1', '2', '3+', '3+','3+','3+','3+','3+','3+','3+','3+','3+','3+','3+')
+md$NOC <- factor(md$NOC, levels = c('1', '2', '3+'))
+
+ggplot(data=md, aes(md$IPP)) + 
+  geom_histogram(breaks=seq(0, 120000, by =5000), 
+                 col="red", 
+                 aes(fill=..count..)) +
+  scale_fill_gradient("Count", low = "green", high = "red") +
+        xlab('Income per person')
+```
+Income per person is skewed heavily to the right as we expected. A very large percentage of our population lives with $50,000 a year.
+
+```{r echo = FALSE, warning = FALSE}
+ggplot(data = md,
+       aes(x = md$GRPIP, y = log(md$IPP), color = as.factor(md$NOC))) +
+  geom_point() + xlim(0,75) + xlab('Rent as percentage of household income') +
+        ylab('Income per person after log transform')
+```
+This interesting graph of three variables, number of children, income per person and rent as perccentage of household income shows us two rather distinct clusters. Red or 1 kid individuals appear to be on the 'surface'. In another word, even for persons who spend the same 40, 50, or even 60% of their income on rent, the more the persons earn the less children they have. This is an very intersting phenomenon. 
+
+```{r echo = FALSE, warning = FALSE}
+fill <- "#4271AE"
+line <- "#1F3552"
+ggplot(md, aes(x = NOC, y = IPP)) +
+        geom_boxplot(fill = fill, colour = line, alpha = .7) +
+        scale_x_discrete(name = "Number of Children") +
+        scale_y_continuous(name = "Income per person") +
+               ylim(40000,120000) +
+        theme_bw()
+```
+Historgram of income per person group by number of children. The three groups share close lower boundaries while upper boundaries appear to be larger for families with more children. This doesn't contracdict with the previous graph we see, because familes with 1 child out weights the other groups by great margin.
+
+##Household income
+In order to understand the relationship between number of children in the household with respect to the household income, firstly we plotted the histogram of the variable. Except for some extremely wealthy families, most of the households obtain annual income from 0 to $25,000. 
+
+```{r echo = FALSE}
+hus <- na.omit(select(df,NOC,HINCP,name))
+hdata <- data.frame(child=hus$NOC,income=hus$HINCP)
+qplot(hdata$income,geom = "histogram",bins = 100,xlab = "Household Income", 
+      main = "Distribution of hosehold income amoung households with children",col=I("red"),alpha=I(0.3))
+```
+
+Then we generated the box plots for different NOC levels. Those wealthy households are detected as outliers in the box plot. It is interesting to see that the extremely wealthy families simply tend to have one or two children, rather than raising as many children as they can afford. In addition, it seems that the average level of household income decreases as the number of children increases. The output is much clearer when we remove those extreme values.
+
+```{r echo = FALSE, warning = FALSE}
+plot_ly(hdata, y = income, color = factor(child), type = "box")  %>% 
+  layout(title = "Boxplots for Household Income with different NOC")
+```
+Further more, we tried to calculate the average number of children for different household income to further verify our hypothesis. The following graph demonstrates the lowess smoothing line of the data table. There is a significant decreasing trend when the household income is greater than $50,000, while the tendency is not that clear in the remaining part. 
+
+```{r echo = FALSE}
+# Calculate the average NOC for different income level
+c <- hdata %>% group_by(income) %>% dplyr::summarise(avg_child= mean(child), 
+                                                      min_child = min(child), 
+                                                      max_child = max(child),
+                                                      total = n())
+# Smooth the average number of children for different household income
+ggplot(c,aes(x=income,y=avg_child))+
+  geom_smooth(aes(colour = avg_child, fill = avg_child))+
+  ggtitle("Average Number of Children for Different Household Income")+
+  labs(x="Household Income",y="Average Number of Children")
+```
+
+To tested our hypothesis, we used the household income from the ten states we selected previously, five with large NOC and five with small NOC. For simpleness an effectiveness of displaying the graph, we created class intervals and put our data points into their respective bins. The bin length is $1,000. And we calculated the average number of children within each bins. Different colors, grey and red, are used to distinguish the source of these household income, and the size reflects the magnitude of average number of children. Fixing the number of children, the household income in the states with less children seems to be a little be greater than that in the other five states. 
+
+```{r echo = FALSE}
+# Select five states with large NOC and five states with small NOC to test our hypothesis
+hdata_st1 <- filter(hus,name %in% c("Utah","Idaho","Alaska","North Dakota","South Dakota")) %>% mutate(code = "States with More Children")
+hdata_st2 <- filter(hus,name %in% c("Rhode Island","Vermont","West Virginia","New Hampshire  ","District of Columbia")) %>% mutate(code = "States with Less Children")
+hdata_st <- rbind(hdata_st2,hdata_st1) %>% mutate(HINCP=round(HINCP,-3)) %>%
+  group_by(HINCP,code) %>% summarise(avg_child = mean(NOC))
+plot_ly(data = hdata_st, x = HINCP, y = avg_child, mode = "markers",
+        color = code, colors = "Set1", size = avg_child) %>% layout(title = "Household Income Comparision among States")
+```
+Except for the graphical analysis, we applied statistical test to support our result. Firstly we conducted F test to compare two variance of the household income from two group of states. The small P-value indicates the inequality of the variance. 
+
+```{r echo = FALSE}
+var.test(hdata_st1$HINCP,hdata_st2$HINCP)
+t.test(hdata_st1$HINCP,hdata_st2$HINCP)
+```
+
+Hence, we did the Welch's modified two-sample t test to test the mean. The null hypothesis is that two groups of states have same average household income. We reject the null hypothesis under 0.05 significance level. Combined with our graphical plot, we may infer that the household income and number of children are negatively correlated, even though the relationship is not that strong.
+
+##Living costs
+We investigated the relationship between the number of children(NOC) and 
+the House cost ratio(calculated by 6 variables: gross rent as percentage of household income (GRPIP), monthly rent(RNTP), gas monthly cost(GASP), electricity monthly cost(ELEP) , fuel cost yearly(FULP), water yearly cost (WATP)).
+
+(1)The house cost ratio(HCR) and its level
+First, we selected the columns and cleaned the data.
+```{r echo = FALSE}
+# choose the columns#
+cols_1<- c("NOC","BDSP","RMSP","RNTP","FULP","GASP","ELEP","WATP","GRPIP","name")
+pus_new<-select(df,one_of(cols_1))
+pus_new<-as.data.frame(pus_new)
+# delete those rows that with the NAs #
+pus<-pus_new[complete.cases(pus_new[,5:10]),]
+# adjust the variable related to prices #
+pus$FULP[pus$FULP==1|pus$FULP==2]<-0
+pus$GASP[pus$GASP==1|pus$GASP==2|pus$GASP==3]<-0
+pus$ELEP[pus$ELEP==1|pus$ELEP==2]<-0
+pus$WATP[pus$WATP==1|pus$WATP==2]<-0
+```
+Then we calculated the house-related cost  ratio(HCR) based on the equation:
+HCR=GRPIP*(12*(RNTP+GASP+ELEP)+WATP+FULP)/(RNTP*12)
+
+```{r echo = FALSE}
+pus$ycost<-12*(pus$RNTP+pus$GASP+pus$ELEP)+pus$WATP+pus$FULP
+pus$cost_ratio<-pus$GRPIP*(pus$ycost)/((pus$RNTP)*12)
+pus1<-subset(pus,cost_ratio<=100)
+```
+After we get the HCR, plot to check the overall distribution: we can conclude from the graph that 70% of the house-related cost stays in the range between 12.5% and 50%.
+
+```{r echo = FALSE}
+# The overall distribution of house-related cost ratio(HCR)#
+ggplot(pus1,aes(x=cost_ratio))+geom_histogram(binwidth=0.1,fill=5)
+```
+
+Then we ploted the box plot:
+```{r echo = FALSE, warning = FALSE}
+# Box plot #
+plot_ly(pus1, y=cost_ratio,color=factor(NOC), type = "box",label="number of children")
+```
+What can be inferred from this graph is that: the ratio increase slightly with the number of children. But there is not a clear relationship between these 2 variables.
+Thus,we decided to subset diffirent kinds of house cost ratio into 5 levels:
+###Low, medieum, intermediate high, high and extremely high
+```{r echo = FALSE, warning=FALSE}
+pus1$level=pus1$cost_ratio
+pus1$level[pus1$level>=0&pus1$level<=20]<-"Low"
+pus1$level[pus1$level>=20&pus1$level<=40]<-"Medium"
+pus1$level[pus1$level>=40&pus1$level<=60]<-"IntermediateHigh"
+pus1$level[pus1$level>=60&pus1$level<=80]<-"High"
+pus1$level[pus1$level>=80&pus1$level<=99]<-"ExtremelyHigh"
+pus1<-subset(pus1,pus1$level=="Low"|pus1$level=="Medium"|pus1$level=="IntermediateHigh"|pus1$level=="High"|pus1$level=="ExtremelyHigh")
+```
+Then we plot the relationship between NOC and cost ratio in 5 levels.
+We found out that in the Medium level and extremely high level, the cost ratio has larger impact on the number of children.
+
+```{r echo = FALSE, warning= FALSE}
+ggplot(data =pus1, aes(x = NOC, y = cost_ratio)) +
+  geom_point(size=0.01) +
+  geom_smooth(aes(colour = level, fill = level)) + facet_wrap(~ level)
+```
+
+(2) Investigated the HCR in different states
+After we get the average number of children in different states,
+we decided to estimate the average house cost ratio in each state and attach them to the whole map.
+
+After that, we picked up the first five states and the last five states:
+
+```{r echo = FALSE, warning=FALSE}
+# study the first five high states and the last five states#
+high <- sqldf('SELECT pus1.NOC, pus1.cost_ratio,level, name from pus1 where name in ("Utah","Idaho","Alaska","North Dakota","South Dakota")')
+low <- sqldf('SELECT NOC, cost_ratio,level, name from pus1 where name in ("Rhode Island","Vermont","West Virginia","New Hampshire  ","District of Columbia")')
+```
+Then we got the plots of the first five and the last five, found out that there are relatively stronger relationship between house-related cost and number of children in households in these graphs.
+
+```{r echo = FALSE, warning = FALSE}
+# plot of high and low #
+ggplot(data =high, aes(x = NOC, y = cost_ratio)) +
+  geom_point(size=0.01) +
+  geom_smooth(aes(colour = level, fill = level)) + facet_wrap(~ level)
+ggplot(data =low, aes(x = NOC, y = cost_ratio)) +
+  geom_point(size=0.01) +
+  geom_smooth(aes(colour = level, fill = level)) + facet_wrap(~ level)
+
+plot_ly(high, y=cost_ratio,color=factor(NOC), type = "box",label="number of children")
+plot_ly(low, y=cost_ratio,color=factor(NOC), type = "box",label="number of children")
+```
+
+#Reflection
+The team conducted an exploratory data analysis around children in hope of finding common features that families with more children share and what cause the discrepences between states. We praticularily looked into four aspects of households, employment status, income per person, household income and living costs. Across all of these subtopics, we have intersting findings and discoveries, expected and unexpected ones. In summary, difference in number of children between states can be mainly attributed to employment status of members of household and various living costs. While an very suprising finding with incomes is the more the family earns, generally the less children the family has.
+Future works could include finding third party data about states' basic statistics, laws on abortion as well as incorperating person datasets into the study.
