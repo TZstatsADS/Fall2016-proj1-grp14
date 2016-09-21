@@ -9,7 +9,7 @@ Term: Fall 2016
 	+ Tian Sheng
 	+ Jiwen You
 	+ Sen Zhuang
-+ Project summary: In this project, we have centered our exploratory data analysis around a segment of our population, households with own children. We'll be investigating interesting topics such as factors that influence the number of children, states with abnormally high or low number of children and much more. Given our American community surveys on individual households, we've chosen numeric and categorical variables like Residing State, family type and employment status, and household income. Additionally, we have also created artificial new variables that extract and combine valuable information.
++ Project summary: In this project, we have centered our exploratory data analysis around a segment of our population, households with own children. We'll be investigating interesting topics such as factors that influence the number of children, states with abnormally high or low number of children and much more. Given our American community surveys on individual households, we've chosen numeric and categorical variables like residing State, family type and employment status, and household income. Additionally, we have also created artificial new variables that extract and combine valuable information.
 
 **Contribution statement**:
 + Tian Sheng:
@@ -25,3 +25,5 @@ Term: Fall 2016
 	+ Completed summary, initial data overview, states sections, income per person section and reflection
 	+ Edited, consolidated and cleaned statements and scripts
 	+ Present project work
++ Yue Wang (Left)
+	+ Finished the explanatory data analysis for the family type and employment status section
