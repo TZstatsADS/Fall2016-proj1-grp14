@@ -2,8 +2,9 @@
 title: "It's all about the kids!"
 author: "By Tian Sheng, Jiwen You, Sen Zhuang"
 output:
-  html_document: default
+  pdf_document: default
   html_notebook: default
+  html_document: default
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
@@ -22,7 +23,7 @@ library(choroplethrMaps)
 ```
 
 #Summary
-In this project, we have centered our exploratory data analysis around a segment of our population, households with children. We'll be investigating interesting topics such as factors that influence children' presence in families, states with abnormally high or low number of children and much more. Given our American community surveys on individual households, we've choosen numeric and categorical variables like residing State, family type and employment status, and household income. Additionally, we have also created artifical new variables that extract and combind valuable information.
+In this project, we have centered our exploratory data analysis around a segment of our population, households with children. We'll be investigating interesting topics such as factors that influence children' presence in families, states with abnormally high or low number of children and much more. Given our American community surveys on individual households, we've choosen numeric and categorical variables like State of residence, family type and employment status, and household income. Additionally, we have also created artifical new variables that extract and combind valuable information.
 
 #Inital data overview
 ```{r echo = FALSE}
@@ -194,7 +195,7 @@ ggplot(work2,aes(x=NOC,y=percentage,fill=family_employment_status))+xlab("Number
 # # by number
 # ggplot(work3,aes(x=FES,y=n,fill=factor(NOC)))+xlab("Family Type and Employment Status ")+ylab("Total number")+geom_bar(stat="identity")+ggtitle("Total number of NOC under different FES") + theme(legend.position="bottom")
 ```
-In the following part, qw use ggplot to show the percentage and total NOC under different family type and employment status. From these plots, we can find that the family type that "Only Husband in Labor Force" tends to have more number of children. The family type, "Female in Labor Force", tends to have less number of children.
+In the following part, we use ggplot to show the percentage and total NOC under different family type and employment status. From these plots, we can find that the family type that "Only Husband in Labor Force" tends to have more number of children. The family type, "Female in Labor Force", tends to have less number of children.
 
 ```{r echo = FALSE, message = FALSE}
 # sankey plot
@@ -278,7 +279,7 @@ ggplot(md, aes(x = NOC, y = IPP)) +
                ylim(40000,120000) +
         theme_bw()
 ```
-Historgram of income per person group by number of children. The three groups share close lower boundaries while upper boundaries appear to be larger for families with more children. This doesn't contracdict with the previous graph we see, because familes with 1 child out weights the other groups by great margin.
+Historgram of income per person group by number of children. The three groups share close lower boundaries while upper boundaries appear to be larger for families with more children. This doesn't contracdict with the previous graph we see, because familes with 1 child out weight the other groups by great margin.
 
 ##Household Income
 In order to understand the relationship between number of children in the household with respect to the household income, firstly we plotted the histogram of the variable. Except for some extremely wealthy families, most of the households obtain annual income from 0 to $25,000. 
