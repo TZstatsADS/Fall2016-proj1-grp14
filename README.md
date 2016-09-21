@@ -13,7 +13,9 @@ Term: Fall 2016
 
 **Contribution statement**:
 + Tian Sheng:
-	+TBC
+	+ Divided the analysis process into two layers: geographical layer and multivariate analysis layer
+	+ Lised questions, cleaned and integrated data of the House-related part
+	+ Created a new variable named HCR and analyzed its relationship with other variables
 + Jiwen You:
 	+ Completed the household income analysis section
 	+ Reviewed and examined the reports and all other contents inside Github in the final check
