@@ -253,7 +253,98 @@ t.test(hdata_st1$HINCP,hdata_st2$HINCP)
 Hence, we did the Welch's modified two-sample t test to test the mean. The null hypothesis is that two groups of states have same average household income. We reject the null hypothesis under 0.05 significance level. Combined with our graphical plot, we may infer that the household income and number of children are negatively correlated, even though the relationship is not that strong. 
 
 d) Living costs(Tian Sheng)
+We investigated the relationship between the number of children(NOC) and 
+the House cost ratio(calculated by 6 variables: gross rent as percentage of household income (GRPIP), monthly rent(RNTP), gas monthly cost(GASP), electricity monthly cost(ELEP) , fuel cost yearly(FULP), water yearly cost (WATP)).
+
+(1)The house cost ratio(HCR) and its level
+First, we selected the columns and cleaned the data.
 ```{r}
+# choose the columns#
+cols_1<- c("NOC","BDSP","RMSP","RNTP","FULP","GASP","ELEP","WATP","GRPIP","name")
+pus_new<-select(df,one_of(cols_1))
+pus_new<-as.data.frame(pus_new)
+# delete those rows that with the NAs #
+pus<-pus_new[complete.cases(pus_new[,5:10]),]
+# adjust the variable related to prices #
+pus$FULP[pus$FULP==1|pus$FULP==2]<-0
+pus$GASP[pus$GASP==1|pus$GASP==2|pus$GASP==3]<-0
+pus$ELEP[pus$ELEP==1|pus$ELEP==2]<-0
+pus$WATP[pus$WATP==1|pus$WATP==2]<-0
+```
+Then we calculated the house-related cost  ratio(HCR) based on the equation:
+HCR=GRPIP*(12*(RNTP+GASP+ELEP)+WATP+FULP)/(RNTP*12)
+
+```{r}
+pus$ycost<-12*(pus$RNTP+pus$GASP+pus$ELEP)+pus$WATP+pus$FULP
+pus$cost_ratio<-pus$GRPIP*(pus$ycost)/((pus$RNTP)*12)
+pus1<-subset(pus,cost_ratio<=100)
+```
+
+After we get the HCR, plot to check the overall distribution: we can conclude from the graph that 70% of the house-related cost stays in the range between 12.5% and 50%.
+```{r}
+# The overall distribution of house-related cost ratio(HCR)#
+ggplot(pus1,aes(x=cost_ratio))+geom_histogram(binwidth=0.1,fill=5)
+```
+
+Then we ploted the box plot:
+```{r}
+# Box plot #
+library(plotly)
+plot_ly(pus1, y=cost_ratio,color=factor(NOC), type = "box",label="number of children")
+```
+What can be inferred from this graph is that: the ratio increase slightly with the number of children. But there is not a clear relationship between these 2 variables.
+Thus,we decided to subset diffirent kinds of house cost ratio into 5 levels:
+# Low, medieum, intermediate high, high and extremely high #
+```{r}
+pus1$level=pus1$cost_ratio
+pus1$level[pus1$level>=0&pus1$level<=20]<-"Low"
+pus1$level[pus1$level>=20&pus1$level<=40]<-"Medium"
+pus1$level[pus1$level>=40&pus1$level<=60]<-"IntermediateHigh"
+pus1$level[pus1$level>=60&pus1$level<=80]<-"High"
+pus1$level[pus1$level>=80&pus1$level<=99]<-"ExtremelyHigh"
+pus1<-subset(pus1,pus1$level=="Low"|pus1$level=="Medium"|pus1$level=="IntermediateHigh"|pus1$level=="High"|pus1$level=="ExtremelyHigh")
+```
+
+Then we plot the relationship between NOC and cost ratio in 5 levels.
+We found out that in the Medium level and extremely high level, the cost ratio has larger impact on the number of children.
+```{r}
+ggplot(data =pus1, aes(x = NOC, y = cost_ratio)) +
+  geom_point(size=0.01) +
+  geom_smooth(aes(colour = level, fill = level)) + facet_wrap(~ level)
+```
+
+(2) Investigated the HCR in different states
+After we get the average number of children in different states,
+we decided to estimate the average house cost ratio in each state and attach them to the whole map.
+```{r}
+#Compute average number of children of each state or territories.
+hcr_st <- pus1[, c('cost_ratio', 'ST')]
+avg_hcr_st <- aggregate(cost_ratio~ST, hcr_st, FUN = mean)
+
+
+
+
+
 
 ```
 
+After that, we picked up the first five states and the last five states:
+```{r}
+# study the first five high states and the last five states#
+high <- sqldf('SELECT pus1.NOC, pus1.cost_ratio,level, ST from pus1 where ST in ("49","16","2","38","46")')
+low <- sqldf('SELECT NOC, cost_ratio,level, ST from pus1 where ST in ("11","33","54","50","44")')
+```
+
+Then we got the plots of the first five and the last five, found out that there are relatively stronger relationship between house-related cost and number of children in households in these graphs.
+```{r}
+# plot of high and low #
+ggplot(data =high, aes(x = NOC, y = cost_ratio)) +
+  geom_point(size=0.01) +
+  geom_smooth(aes(colour = level, fill = level)) + facet_wrap(~ level)
+ggplot(data =low, aes(x = NOC, y = cost_ratio)) +
+  geom_point(size=0.01) +
+  geom_smooth(aes(colour = level, fill = level)) + facet_wrap(~ level)
+
+plot_ly(high, y=cost_ratio,color=factor(NOC), type = "box",label="number of children")
+plot_ly(low, y=cost_ratio,color=factor(NOC), type = "box",label="number of children")
+```
